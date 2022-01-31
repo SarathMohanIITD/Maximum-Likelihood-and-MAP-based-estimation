@@ -1,52 +1,72 @@
 
-noise_var = 0.1;
+clear all;
 
+SNR = [0.1,0.5,1,2,5,10,20];  % SNR loop for plotting BER
+
+% Request for number of bits
 option = input('Choose the number of bits to transfer \n 1  >>> 10^3 \n 2  >>> 10^4\n 3 >>> 10^6\n ------ ');
+
+% Request for prior probability for MAP estimate
+px0=input('Enter the prior prob of x=0 ---> ');  
+
+
 if option ==1
     N = 10^3;
 elseif option ==2
-        N=10^4;
+    N = 10^4;
 else
     N = 10^6;
 end
 
-tx = randi([0,1],N,1); % Binary input vector
-
+tx = randi([0,1],N,1);  % Binary input vector
 bpsk_tx= 2*tx - 1;      % BPSK modulation
 
-noise = noise_var*randn(N,1);  % AWGN noise
+for i = 1:length(SNR)
+    
+    NP = 10^(-0.1*SNR(i));  % Finding noise power from given SNR
+    
+    % AWGN noise
+    noise = NP*randn(N,1);      
+    y_awgn = bpsk_tx + noise; 
 
-% Adding AWGN noise
-y_awgn = bpsk_tx + noise;
+    % Frequency flat
+    h = 0.8;
+    y_flat = bpsk_tx*h + noise;
 
-% Frequency flat
-h = 4;
-y_flat = bpsk_tx*h + noise;
+    %--------  Receiver ----------------
 
-
-%--------  Receiver ----------------
-
-algo = input('Enter the demodulation scheme\n   1.  ML detection\n   2.   MAP detection   -----> ');
+    % Performing ML detection 
 
 
-%  Performing ML detection 
-if(algo ==1)
+   y_ML_awgn_demod = ML_demod(y_awgn);
+   y_ML_flat_demod = ML_demod(y_flat);
+   ML_biterr_awgn(i) = bit_err(y_ML_awgn_demod,tx);
+   ML_biterr_flat(i) = bit_err(y_ML_flat_demod,tx);
 
-    y_awgn_demod = ML_demod(y_awgn);
-    y_flat_demod = ML_demod(y_flat);
+    % Performing MAP detection
 
-    biterr_awgn = bit_err(y_awgn_demod,bpsk_tx);
-    biterr_flat = bit_err(y_flat_demod,bpsk_tx);
-    disp(biterr_awgn);
-    disp(biterr_flat);
+   y_MAP_awgn_demod = MAP_demod(y_awgn,px0,NP);  %MAP demod function 
+   y_MAP_flat_demod = MAP_demod(y_flat,px0,NP);
+   MAP_biterr_awgn(i) = bit_err(y_MAP_awgn_demod,tx);
+   MAP_biterr_flat(i) = bit_err(y_MAP_flat_demod,tx);         
 
-else  
 end
-    
+
+disp(ML_biterr_awgn);
+disp(MAP_biterr_awgn);
+plot(SNR,ML_biterr_awgn);
+hold on;
+plot(SNR,MAP_biterr_awgn,'--');
+xlabel('SNR');
+ylabel('BER')
+title("ML vs MAP");
+legend('ML','MAP');
+
+
 
     
 
-% Maximum Likelihood demodulation
+% ------- Maximum Likelihood demodulation  --------
 function demod = ML_demod(bits)
     demod=[];
     for i = 1:size(bits)
@@ -58,9 +78,18 @@ function demod = ML_demod(bits)
     end
 end
 
+%--------   Maximum Aposteriori Probability Receiver  --------------------
 
-
-
+function demod = MAP_demod(bits,px0,NP)
+    demod=[];
+    for i = 1:size(bits)
+        if 4*bits(i) <= -2*NP*log((1-px0)/px0)
+           demod=[demod;0];
+        else
+            demod = [demod;1];   
+        end
+    end
+end
 
 
 % Bit error rate calculation
