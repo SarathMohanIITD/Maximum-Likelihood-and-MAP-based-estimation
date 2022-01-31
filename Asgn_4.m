@@ -26,12 +26,20 @@ for i = 1:length(SNR)
     NP = 10^(-0.1*SNR(i));  % Finding noise power from given SNR
     
     % AWGN noise
-    noise = NP*randn(N,1);      
+    noise = NP*randn(N,1);
+    noise2 = NP*randn(N,1); % To create a rayleigh dxn
+    
+    sigma = sqrt(NP);
+    
+    % By making use of the fact that sqrt(X^2 + Y^2) is rayleigh dxn
+    %   if X and Y are Gaussian
+    h = 1/sqrt(2)*[sqrt(randn(N,1) + j*randn(N,1))];
+    h =abs(h);
+    %h = raylpdf(noise,0.5); 
     y_awgn = bpsk_tx + noise; 
 
     % Frequency flat
-    h = 0.8;
-    y_flat = bpsk_tx*h + noise;
+    y_flat = bpsk_tx.*h + noise;
 
     %--------  Receiver ----------------
 
@@ -52,19 +60,37 @@ for i = 1:length(SNR)
 
 end
 
+%------- Display ------
+disp('ML bit error : ')
 disp(ML_biterr_awgn);
+disp('MAP bit error : ')
 disp(MAP_biterr_awgn);
+disp('ML bit error : ')
+disp(ML_biterr_flat);
+disp('MAP bit error : ')
+disp(MAP_biterr_flat);
+
+%------  PLOT  --------
+figure;
+subplot(1,2,1);
 plot(SNR,ML_biterr_awgn);
 hold on;
 plot(SNR,MAP_biterr_awgn,'--');
 xlabel('SNR');
 ylabel('BER')
-title("ML vs MAP");
+title("ML vs MAP for AWGN channel for P(x =0)="+px0);
 legend('ML','MAP');
+hold off;
+subplot(1,2,2);
+plot(SNR,ML_biterr_flat);
+hold on;
+plot(SNR,MAP_biterr_flat,'--');
+xlabel('SNR');
+ylabel('BER')
+title("ML vs MAP for freq flat channel for P(x =0)="+px0);
+legend('ML','MAP');
+hold off;
 
-
-
-    
 
 % ------- Maximum Likelihood demodulation  --------
 function demod = ML_demod(bits)
