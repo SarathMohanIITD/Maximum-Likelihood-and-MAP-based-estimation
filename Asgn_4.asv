@@ -1,0 +1,40 @@
+noise_var = 1;
+
+option = input('Choose the number of bits to transfer \n 1  >>> 10^3 \n 2  >>> 10^4\n 3 >>> 10^6\n ------ ');
+if option ==1
+    N = 10^3;
+elseif option ==2
+        N=10^4;
+else
+    N = 10^6;
+end
+
+tx = rand(N,1); % Random input vector
+bpsk_tx= 2*tx - 1; % BPSK modulation
+noise = 0.1*randn(N,1);
+
+% Adding AWGN noise
+y_awgn = bpsk_tx + noise;
+
+% Frequency flat
+h = 0.8;
+y_flat = bpsk_tx*h + noise;
+
+y_awgn_demod = ML_demod(y_awgn);
+y_flat_demod = ML_demod(y_flat);
+
+biterr_awgn = bit_err(y_awgn_demod,bpsk_tx);
+biterr_y
+
+function demod = ML_demod(bits)
+    demod=[];
+    for i = 1:size(bits,2)
+       if bits(i)<0
+           demod=[demod 0];
+       else
+           demod=[demod 1];
+       end
+    end
+end
+
+   
