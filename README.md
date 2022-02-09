@@ -16,8 +16,7 @@
 #### Look for [Assignment_4_Theory.pdf](https://github.com/SarathMohanIITD/Maximum-Likelihood-and-MAP-based-estimation/blob/main/Assignment_4_Theory.pdf) for the derivation of ML and MAP used in this experiment
 
 ## THEORY
-
-
+You can refer this [link](https://sassafras13.github.io/MLEvsMAP/) for the basic understanding of ML and MAP estimation.
 
 ## ALGORITHM USED
 
