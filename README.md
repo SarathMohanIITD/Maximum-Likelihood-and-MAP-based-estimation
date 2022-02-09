@@ -8,7 +8,7 @@
       where
       n = AWGN noise<br/>
       h → Rayleigh dxn representing flat fading
-- Implement BPSK modulation
+- Implement BPSK modulation (Refer to my [repository](https://github.com/SarathMohanIITD/Simulation-of-BPSK-and-QPSK-with-varying-SNR) to see more about BPSK )
 - On the receiver side perform 2 kinds of demodulation techniques 
     1. ML detection
     2. MAP detection
@@ -33,3 +33,15 @@ ALGORITHM
         2. MAP detection
     3. Calculated BER for each SNR values
 6. Finally, SNR vs BER has been plotted for both Flat fading and AWGN for both ML and MAP
+
+## PLOTS
+
+
+![image](https://user-images.githubusercontent.com/86975877/153172113-a7080bad-3473-4567-93e4-fa9d7d04ab06.png)
+
+
+![image](https://user-images.githubusercontent.com/86975877/153172461-6e8abffc-38d1-4923-b8e4-de464b56a83f.png)
+
+
+![image](https://user-images.githubusercontent.com/86975877/153172531-60382706-d2e1-41c0-aaa6-ad8d2e0852fe.png)
+
